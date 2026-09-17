@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from "react-native";
 
 import { useAuth } from "@/data/AuthProvider";
-import { useKoot } from "@/data/koot";
+import { kokoKuvaus, useKoot } from "@/data/koot";
 import { useOmaLapsi } from "@/data/lapsi";
 import { Ruutu } from "@/ui/Ruutu";
 import { varit } from "@/ui/teema";
@@ -12,14 +12,14 @@ export default function Etusivu() {
   const kirjautunut = sessio !== null;
   const lapsi = useOmaLapsi(kirjautunut);
   const koot = useKoot(kirjautunut);
-  const koko = koot.data?.find((k) => k.id === lapsi.data?.nykyinen_koko_id);
+  const kuvaus = kokoKuvaus(koot.data, lapsi.data);
   const nimi = lapsi.data?.nimi;
 
   return (
     <Ruutu otsikko={nimi ? `${nimi}n vaatteet` : "Etusivu"}>
       {lapsi.data ? (
         <Text style={tyylit.tila}>
-          {koko ? `Nykyinen koko ${koko.nimi}.` : "Nykyistä kokoa ei ole annettu."} Vaatteita ei ole vielä kirjattu.
+          {kuvaus ? `Nykyinen ${kuvaus}.` : "Nykyisiä kokoja ei ole annettu."} Vaatteita ei ole vielä kirjattu.
         </Text>
       ) : null}
       <Tyhja

@@ -2,9 +2,9 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import { useKoot, ryhmittele } from "@/data/koot";
+import { kenkakoot, ryhmittele, useKoot, vaatekoot } from "@/data/koot";
 import { useLuoLapsi } from "@/data/lapsi";
-import { KOKORYHMA_SELITE } from "@/data/tyypit";
+import { KOKORYHMA_SELITE, type KokoRivi } from "@/data/tyypit";
 import { Ilmoitus } from "@/ui/Ilmoitus";
 import { Kentta } from "@/ui/Kentta";
 import { Nappi } from "@/ui/Nappi";
@@ -12,13 +12,14 @@ import { Ruutu } from "@/ui/Ruutu";
 import { Siru } from "@/ui/Siru";
 import { valit, varit } from "@/ui/teema";
 
-/** Ensikäynnistys: lapsen nimi ja nykyinen koko (valinnainen). */
+/** Ensikäynnistys: lapsen nimi, nykyinen vaatekoko ja nykyinen kengänkoko (molemmat valinnaisia). */
 export default function Onboarding() {
   const router = useRouter();
   const koot = useKoot();
   const luoLapsi = useLuoLapsi();
   const [nimi, asetaNimi] = useState("");
-  const [kokoId, asetaKokoId] = useState<string | null>(null);
+  const [vaatekokoId, asetaVaatekokoId] = useState<string | null>(null);
+  const [kenkakokoId, asetaKenkakokoId] = useState<string | null>(null);
   const [virhe, asetaVirhe] = useState<string | null>(null);
 
   async function tallenna() {
@@ -28,7 +29,7 @@ export default function Onboarding() {
     }
     asetaVirhe(null);
     try {
-      await luoLapsi.mutateAsync({ nimi, nykyinen_koko_id: kokoId });
+      await luoLapsi.mutateAsync({ nimi, nykyinen_koko_id: vaatekokoId, nykyinen_kenkakoko_id: kenkakokoId });
       router.replace("/");
     } catch (e) {
       asetaVirhe(e instanceof Error ? e.message : "Tallennus epäonnistui.");
@@ -38,7 +39,8 @@ export default function Onboarding() {
   return (
     <Ruutu otsikko="Kenen vaatteita?">
       <Text style={tyylit.kuvaus}>
-        Lapsesta tallennetaan vain nimi ja nykyinen koko. Koon voi jättää tyhjäksi ja lisätä myöhemmin.
+        Lapsesta tallennetaan vain nimi sekä nykyinen vaatekoko ja kengänkoko. Koot voi jättää tyhjäksi ja lisätä
+        myöhemmin.
       </Text>
 
       <Kentta
@@ -50,26 +52,23 @@ export default function Onboarding() {
         onSubmitEditing={tallenna}
       />
 
-      <Text style={tyylit.otsikko}>Nykyinen koko (valinnainen)</Text>
       {koot.isPending ? <ActivityIndicator color={varit.korostus} /> : null}
       {koot.isError ? <Ilmoitus teksti={`Kokojen haku epäonnistui: ${koot.error.message}`} /> : null}
-      {koot.data
-        ? ryhmittele(koot.data).map((ryhma) => (
+
+      {koot.data ? (
+        <>
+          <Text style={tyylit.otsikko}>Nykyinen vaatekoko (valinnainen)</Text>
+          {ryhmittele(vaatekoot(koot.data)).map((ryhma) => (
             <View key={ryhma.ryhma} style={tyylit.ryhma}>
               <Text style={tyylit.ryhmaOtsikko}>{KOKORYHMA_SELITE[ryhma.ryhma]}</Text>
-              <View style={tyylit.sirut}>
-                {ryhma.koot.map((k) => (
-                  <Siru
-                    key={k.id}
-                    teksti={k.nimi}
-                    valittu={k.id === kokoId}
-                    onPress={() => asetaKokoId(k.id === kokoId ? null : k.id)}
-                  />
-                ))}
-              </View>
+              <Sirurivi koot={ryhma.koot} valittuId={vaatekokoId} onValitse={asetaVaatekokoId} />
             </View>
-          ))
-        : null}
+          ))}
+
+          <Text style={tyylit.otsikko}>Nykyinen kengänkoko (valinnainen)</Text>
+          <Sirurivi koot={kenkakoot(koot.data)} valittuId={kenkakokoId} onValitse={asetaKenkakokoId} />
+        </>
+      ) : null}
 
       {virhe ? <Ilmoitus teksti={virhe} /> : null}
 
@@ -78,6 +77,30 @@ export default function Onboarding() {
         Sarjalisäys alkusyöttöä varten tulee vaiheessa 9; sitä ennen etusivu on tyhjä.
       </Text>
     </Ruutu>
+  );
+}
+
+/** Yksi valinta rivistä: sama siru uudelleen painettuna poistaa valinnan. */
+function Sirurivi({
+  koot,
+  valittuId,
+  onValitse,
+}: {
+  koot: KokoRivi[];
+  valittuId: string | null;
+  onValitse: (id: string | null) => void;
+}) {
+  return (
+    <View style={tyylit.sirut}>
+      {koot.map((k) => (
+        <Siru
+          key={k.id}
+          teksti={k.nimi}
+          valittu={k.id === valittuId}
+          onPress={() => onValitse(k.id === valittuId ? null : k.id)}
+        />
+      ))}
+    </View>
   );
 }
 
@@ -91,6 +114,7 @@ const tyylit = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: varit.teksti,
+    marginTop: valit.s,
   },
   ryhma: {
     gap: valit.s,

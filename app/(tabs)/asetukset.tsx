@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { kirjauduUlos, useAuth } from "@/data/AuthProvider";
-import { useKoot } from "@/data/koot";
+import { kokoKuvaus, useKoot } from "@/data/koot";
 import { useOmaLapsi } from "@/data/lapsi";
 import { Nappi } from "@/ui/Nappi";
 import { Ruutu } from "@/ui/Ruutu";
@@ -14,7 +14,7 @@ export default function Asetukset() {
   const kirjautunut = sessio !== null;
   const lapsi = useOmaLapsi(kirjautunut);
   const koot = useKoot(kirjautunut);
-  const koko = koot.data?.find((k) => k.id === lapsi.data?.nykyinen_koko_id);
+  const kuvaus = kokoKuvaus(koot.data, lapsi.data);
   const [odottaa, asetaOdottaa] = useState(false);
 
   async function ulos() {
@@ -31,7 +31,7 @@ export default function Asetukset() {
       <View style={tyylit.kortti}>
         <Text style={tyylit.otsikko}>Lapsi</Text>
         <Text style={tyylit.rivi}>{lapsi.data?.nimi ?? "–"}</Text>
-        <Text style={tyylit.himmea}>{koko ? `Nykyinen koko ${koko.nimi}` : "Nykyistä kokoa ei ole annettu"}</Text>
+        <Text style={tyylit.himmea}>{kuvaus ? `Nykyinen ${kuvaus}` : "Nykyisiä kokoja ei ole annettu"}</Text>
         <Text style={tyylit.himmea}>Muokkaus tulee vaiheessa 11.</Text>
       </View>
 

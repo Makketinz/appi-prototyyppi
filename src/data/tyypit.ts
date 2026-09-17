@@ -113,7 +113,10 @@ export type LapsiRivi = {
   id: string;
   perhe_id: string;
   nimi: string;
+  /** Nykyinen vaatekoko (sentti, kirjain tai yleinen). */
   nykyinen_koko_id: string | null;
+  /** Nykyinen kengänkoko (ryhmä kenka). */
+  nykyinen_kenkakoko_id: string | null;
   luotu: string;
   muokattu: string;
 };

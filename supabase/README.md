@@ -10,6 +10,7 @@ Migraatiot ovat `migrations/`-hakemistossa numerojärjestyksessä ja ne ajetaan 
 | `migrations/0001_perusrakenne.sql` | Enumit, taulut `perhe`, `kayttaja`, `koko`, `lapsi`, `merkki`, `sailytyspaikka`, `vaate`, `kuva`, `tilamuutos`; yhdistelmäviiteavaimet `(x_id, perhe_id)`; koon perhetarkistus triggerissä; 52 oletuskokoa |
 | `migrations/0002_rls.sql` | RLS päälle kaikkiin tauluihin; oikeudet vain `authenticated`-roolille; `perhe`, `kayttaja` ja `tilamuutos` vain luku; `vaate.tila` ja myyntisarakkeet eivät ole suoraan päivitettävissä |
 | `migrations/0003_funktiot.sql` | Rekisteröinti luo perheen ja käyttäjän (trigger `auth.users`-tauluun); vaatteen alkutila kirjautuu historiaan; `siirra_tila(...)` ja `muokkaa_tilamuutoksen_paivamaara(...)` |
+| `migrations/0004_kengankoko.sql` | Lapselle erillinen nykyinen kengänkoko (`nykyinen_kenkakoko_id`); `nykyinen_koko_id` on vaatekoko; trigger estää väärän kokoryhmän |
 | `tests/hyvaksymistesti.sql` | Hyväksymistesti: ajetaan SQL-editorissa, peruu omat muutoksensa |
 | `tests/00_supabase_emulaatio.sql`, `tests/aja_paikallisesti.sh` | Vain paikalliseen PostgreSQL-testaukseen, ei Supabaseen |
 
@@ -26,7 +27,7 @@ Tietoturvan periaatteet:
 ## Ajo Supabase-projektiin
 
 1. Luo projekti osoitteessa supabase.com (ilmaistaso riittää).
-2. Avaa **SQL Editor** ja aja tiedostot järjestyksessä: `0001_perusrakenne.sql`, `0002_rls.sql`, `0003_funktiot.sql`. Liitä kunkin tiedoston sisältö editoriin ja paina Run.
+2. Avaa **SQL Editor** ja aja tiedostot järjestyksessä: `0001_perusrakenne.sql`, `0002_rls.sql`, `0003_funktiot.sql`, `0004_kengankoko.sql`. Liitä kunkin tiedoston sisältö editoriin ja paina Run. Jos 0001–0003 on jo ajettu aiemmin, aja vain puuttuvat.
 3. Aja `tests/hyvaksymistesti.sql` samassa editorissa. Tulosteen Messages-välilehdellä pitää näkyä rivejä `OK ...` ja lopussa `HYVÄKSYMISTESTI LÄPI`. Testi luo kaksi tilapäistä käyttäjää ja peruu kaiken lopussa (`rollback`).
 
 Vaihtoehtoisesti Supabase CLI:llä: `supabase link --project-ref <ref>` ja `supabase db push` (CLI lukee `migrations/`-hakemiston).
@@ -39,6 +40,7 @@ Testi vastaa suunnitelman vaiheen 2 ehtoon "SQL-editorista lisätty vaate näkyy
 | --- | --- |
 | Kaksi käyttäjää rekisteröityy | Kummallekin oma perhe ja `kayttaja`-rivi |
 | A lisää lapsen, merkin, oman koon ja vaatteen | `perhe_id` täyttyy oletuksesta; alkutila kirjautuu historiaan; jemma-tyyppi täydentyy |
+| Lapsen vaatekooksi kengänkoko tai kengänkooksi vaatekoko | Epäonnistuu (trigger) |
 | B lukee tauluja | Ei näe A:n vaatetta, lasta, merkkiä, kokoa, historiaa eikä perhettä |
 | Käyttäjä yrittää vaihtaa oman `perhe_id`:n | Epäonnistuu (permission denied) |
 | Vaate toisen perheen lapselle, merkille tai koolle; vaate toisen perheen `perhe_id`:llä | Epäonnistuu (viiteavain, trigger tai RLS) |
