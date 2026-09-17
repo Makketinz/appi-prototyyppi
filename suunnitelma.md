@@ -4,6 +4,15 @@
 
 Suunnitelma pohjautuu MVP-määrittelyyn v0.2 (16.9.2026). Koodia ei vielä kirjoiteta – tässä päätetään mitä rakennetaan, mistä osista ja missä järjestyksessä.
 
+## Prototyypin poikkeamat (17.9.2026)
+
+Prototyyppi rakennetaan tämän suunnitelman mukaan Expo + Supabase -pohjalle, mutta ensisijainen ajotapa on selain: sovellus web-exportataan ja julkaistaan GitHub Pagesiin. Tästä seuraa muutama poikkeama alkuperäiseen:
+
+- **Ajo ja jakelu.** Vaiheiden 1–3 hyväksymistestit tehdään selaimessa (paikallisesti `npm run web` tai Pages-osoitteesta), ei puhelimessa. EAS-build ja TestFlight / Play-jakelu ovat käyttäjän omalla koneella tehtäviä askelia; `eas.json` on repossa valmiina.
+- **Kirjautuminen.** Vaiheessa 3 vain sähköposti + salasana. Apple ja Google tulevat vaiheessa 13 suunnitelman mukaan.
+- **Tietoturva tietokannassa.** RLS:n lisäksi perhe-rajaus varmistetaan rakenteella: yhdistelmäviiteavaimet `(x_id, perhe_id)`, `vaate.tila` ja `tilamuutos` kirjoitettavissa vain `siirra_tila`-funktion kautta, `kayttaja.perhe_id` ei käyttäjän muokattavissa, `perhe`-riviä ei voi luoda tai poistaa asiakkaasta.
+- **Kirjastot.** Reanimated ja gesture-handler otetaan käyttöön vasta, kun jokin näkymä niitä tarvitsee.
+
 ## Lähtökohdat määrittelystä
 
 Toteutus rakennetaan niin, että määrittelyn ydinperiaate toteutuu ensin: kuva → kategoria + koko → tila → tallenna, alle 10 sekuntia per vaate sarjalisäyksessä. Kaikki muu on tämän päälle rakennettavaa täydennystä.
