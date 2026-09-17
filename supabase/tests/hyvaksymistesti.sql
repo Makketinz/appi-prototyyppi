@@ -81,10 +81,22 @@ select pg_temp.vaadi('A näkee vain oman kayttaja-rivinsä', (select count(*) fr
 select pg_temp.vaadi('A näkee järjestelmän oletuskoot', (select count(*) from public.koko where perhe_id is null) = 52);
 
 with x as (
-  insert into public.lapsi (nimi, nykyinen_koko_id)
-  values ('Aino', (select id from public.koko where perhe_id is null and nimi = '110'))
+  insert into public.lapsi (nimi, nykyinen_koko_id, nykyinen_kenkakoko_id)
+  values (
+    'Aino',
+    (select id from public.koko where perhe_id is null and nimi = '110'),
+    (select id from public.koko where perhe_id is null and ryhma = 'kenka' and nimi = '25')
+  )
   returning id
 ) insert into t select 'lapsi_a', id from x;
+select pg_temp.vaadi('lapsella on sekä vaatekoko että kengänkoko',
+  (select nykyinen_koko_id is not null and nykyinen_kenkakoko_id is not null from public.lapsi));
+select pg_temp.odota_virhetta('kengänkoko vaatekooksi',
+  format($q$ update public.lapsi set nykyinen_koko_id = %L $q$,
+    (select id from public.koko where perhe_id is null and ryhma = 'kenka' and nimi = '25')));
+select pg_temp.odota_virhetta('vaatekoko kengänkooksi',
+  format($q$ update public.lapsi set nykyinen_kenkakoko_id = %L $q$,
+    (select id from public.koko where perhe_id is null and nimi = '110')));
 with x as (insert into public.merkki (nimi) values ('Reima ') returning id) insert into t select 'merkki_a', id from x;
 with x as (
   insert into public.koko (perhe_id, ryhma, nimi, jarjestys)

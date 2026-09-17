@@ -8,6 +8,7 @@ export function Siru({ teksti, valittu, onPress }: { teksti: string; valittu: bo
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected: valittu }}
+      aria-pressed={valittu}
       onPress={onPress}
       style={({ pressed }) => [tyylit.siru, valittu && tyylit.valittu, pressed && tyylit.painettu]}
     >

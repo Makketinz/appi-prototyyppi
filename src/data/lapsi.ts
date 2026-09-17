@@ -25,13 +25,21 @@ export function useOmaLapsi(kaytossa: boolean) {
   });
 }
 
-export type UusiLapsi = { nimi: string; nykyinen_koko_id: string | null };
+export type UusiLapsi = {
+  nimi: string;
+  nykyinen_koko_id: string | null;
+  nykyinen_kenkakoko_id: string | null;
+};
 
 /** Onboarding: luo lapsen. perhe_id täyttyy tietokannassa oletuksesta oma_perhe_id(). */
 export async function luoLapsi(lapsi: UusiLapsi): Promise<LapsiRivi> {
   const { data, error } = await supabase()
     .from("lapsi")
-    .insert({ nimi: lapsi.nimi.trim(), nykyinen_koko_id: lapsi.nykyinen_koko_id })
+    .insert({
+      nimi: lapsi.nimi.trim(),
+      nykyinen_koko_id: lapsi.nykyinen_koko_id,
+      nykyinen_kenkakoko_id: lapsi.nykyinen_kenkakoko_id,
+    })
     .select("*")
     .single();
   if (error) throw new Error(error.message);

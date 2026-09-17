@@ -22,3 +22,27 @@ export function ryhmittele(koot: KokoRivi[]): { ryhma: Kokoryhma; koot: KokoRivi
     (r) => r.koot.length > 0,
   );
 }
+
+/** Vaatekoot: kaikki muut ryhmät kuin kengät. */
+export function vaatekoot(koot: KokoRivi[]): KokoRivi[] {
+  return koot.filter((k) => k.ryhma !== "kenka");
+}
+
+/** Kengänkoot. */
+export function kenkakoot(koot: KokoRivi[]): KokoRivi[] {
+  return koot.filter((k) => k.ryhma === "kenka");
+}
+
+/** Lyhyt kuvaus lapsen nykyisistä ko'oista, esim. "vaatekoko 110, kengänkoko 25". */
+export function kokoKuvaus(
+  koot: KokoRivi[] | undefined,
+  lapsi: { nykyinen_koko_id: string | null; nykyinen_kenkakoko_id: string | null } | null | undefined,
+): string | null {
+  if (!koot || !lapsi) return null;
+  const vaate = koot.find((k) => k.id === lapsi.nykyinen_koko_id);
+  const kenka = koot.find((k) => k.id === lapsi.nykyinen_kenkakoko_id);
+  const osat = [vaate ? `vaatekoko ${vaate.nimi}` : null, kenka ? `kengänkoko ${kenka.nimi}` : null].filter(
+    (o): o is string => o !== null,
+  );
+  return osat.length > 0 ? osat.join(", ") : null;
+}

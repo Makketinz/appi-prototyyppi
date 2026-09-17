@@ -8,7 +8,7 @@ Prototyyppi on rakennettu suunnitelman vaiheissa. Tässä versiossa ovat valmiin
 | --- | --- | --- |
 | 1 Projektin runko | Expo + TypeScript + Expo Router, alapalkki Etusivu · **+ Lisää vaate** · Koonnit · Asetukset, GitHub Pages -julkaisu | Sovellus käynnistyy selaimessa ja tabit vaihtuvat |
 | 2 Tietokanta | Supabase-migraatiot: taulut, enumit, oletuskoot, rivitason turvallisuus, `siirra_tila`-funktio, hyväksymistesti | `supabase/`-hakemisto, ks. [supabase/README.md](supabase/README.md) |
-| 3 Kirjautuminen ja perhe | Sähköposti + salasana, rekisteröinti luo perheen ja käyttäjän, ensikäynnistys kysyy lapsen nimen ja koon | Uusi käyttäjä pääsee tyhjälle etusivulle, lapsen nimi tallessa |
+| 3 Kirjautuminen ja perhe | Sähköposti + salasana, rekisteröinti luo perheen ja käyttäjän, ensikäynnistys kysyy lapsen nimen, vaatekoon ja kengänkoon | Uusi käyttäjä pääsee tyhjälle etusivulle, lapsen nimi tallessa |
 
 Vaatteiden lisäys, listat, kuvat, tilamuutokset, haku ja koonnit tulevat vaiheissa 4–12.
 
@@ -23,8 +23,8 @@ Kun GitHub Pages on otettu käyttöön (ohje alla), sovellus on osoitteessa
 1. Avaa osoite puhelimella tai selaimella (näkymä on rajattu mobiilileveyteen).
 2. Valitse **Luo tili**, anna sähköposti ja vähintään 6 merkin salasana.
 3. Jos Supabase-projektissa on sähköpostivahvistus päällä, avaa sähköpostiin tullut linkki ja kirjaudu sitten sisään.
-4. Anna lapsen nimi ja halutessasi nykyinen koko → **Tallenna ja aloita**.
-5. Etusivu näyttää lapsen nimen ja koon. Asetuksista voi kirjautua ulos. Tabit ja **+ Lisää vaate** avaavat vaiheiden 4+ paikat.
+4. Anna lapsen nimi ja halutessasi nykyinen vaatekoko ja kengänkoko → **Tallenna ja aloita**.
+5. Etusivu näyttää lapsen nimen ja koot. Asetuksista voi kirjautua ulos. Tabit ja **+ Lisää vaate** avaavat vaiheiden 4+ paikat.
 
 ## Kokeilu omalla koneella
 
@@ -45,7 +45,7 @@ Muut komennot: `npm run typecheck` (TypeScript), `npm run export:web` (staattine
 ## Supabase-projektin luonti
 
 1. Luo projekti osoitteessa [supabase.com](https://supabase.com) (ilmaistaso riittää). Kirjoita talteen **Project Settings → API**: Project URL ja anon public key.
-2. Aja migraatiot **SQL Editorissa** järjestyksessä: `supabase/migrations/0001_perusrakenne.sql`, `0002_rls.sql`, `0003_funktiot.sql`. Aja sitten `supabase/tests/hyvaksymistesti.sql`; lopussa pitää lukea `HYVÄKSYMISTESTI LÄPI`. Tarkemmin: [supabase/README.md](supabase/README.md).
+2. Aja migraatiot **SQL Editorissa** järjestyksessä: `supabase/migrations/0001_perusrakenne.sql`, `0002_rls.sql`, `0003_funktiot.sql`, `0004_kengankoko.sql`. Aja sitten `supabase/tests/hyvaksymistesti.sql`; lopussa pitää lukea `HYVÄKSYMISTESTI LÄPI`. Tarkemmin: [supabase/README.md](supabase/README.md).
 3. **Authentication → URL Configuration**:
    - Site URL: `https://makketinz.github.io/appi-prototyyppi/` (alipolku mukaan, jotta vahvistuslinkit palaavat sovellukseen).
    - Redirect URLs: lisää `http://localhost:8081/**` paikallista kehitystä varten.
@@ -72,8 +72,8 @@ Huomioita:
 
 - [ ] Tabit vaihtuvat ja **+ Lisää vaate** avaa lisäyssivun, josta pääsee takaisin.
 - [ ] Tilin luonti onnistuu; väärä salasana antaa suomenkielisen virheen.
-- [ ] Ensimmäinen kirjautuminen kysyy lapsen nimen; tyhjä nimi estetään; koon voi valita tai jättää tyhjäksi.
-- [ ] Etusivu näyttää lapsen nimen ja koon; sivun uudelleenlataus ei kirjaa ulos.
+- [ ] Ensimmäinen kirjautuminen kysyy lapsen nimen; tyhjä nimi estetään; vaatekoon ja kengänkoon voi valita molemmat tai jättää tyhjäksi.
+- [ ] Etusivu näyttää lapsen nimen ja koot; sivun uudelleenlataus ei kirjaa ulos.
 - [ ] Asetukset näyttää sähköpostin ja lapsen; **Kirjaudu ulos** palauttaa kirjautumissivulle.
 - [ ] Supabasen Table Editorissa `perhe`, `kayttaja` ja `lapsi` sisältävät rivin; toinen käyttäjä ei näe niitä (hyväksymistesti).
 
