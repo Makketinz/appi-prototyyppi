@@ -33,7 +33,13 @@ export function Vartija({ children }: PropsWithChildren) {
       if (!onboardingissa) router.replace("/onboarding");
       return;
     }
-    if (authissa || onboardingissa) router.replace("/");
+    if (authissa || onboardingissa) {
+      // Suoraan avatun kirjautumis- tai ensikäynnistyssivun alla ovat tabit (initialRouteName),
+      // joten palataan niihin; pelkkä replace jättäisi pinoon kaksi etusivua. canGoBack lukee
+      // navigaation todellisen tilan (canDismiss ei näe alkulatauksessa lisättyjä tabeja).
+      if (router.canGoBack()) router.dismissAll();
+      else router.replace("/");
+    }
   }, [ladattu, sessio, lapsi.isPending, lapsi.isError, lapsi.data, authissa, onboardingissa, router]);
 
   return (

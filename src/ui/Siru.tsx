@@ -1,6 +1,23 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { type Href, Link } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { sateet, valit, varit } from "@/ui/teema";
+
+/** Siru, joka on linkki toiselle sivulle (selaimessa oikea <a href>). */
+export function LinkkiSiru({ teksti, href }: { teksti: string; href: Href }) {
+  return (
+    // Link + asChild ei välitä Pressablen funktiotyyliä, joten tyyli on sisemmällä näkymällä.
+    <Link href={href} asChild>
+      <Pressable>
+        {({ pressed }) => (
+          <View style={[tyylit.siru, pressed && tyylit.painettu]}>
+            <Text style={tyylit.teksti}>{teksti} ›</Text>
+          </View>
+        )}
+      </Pressable>
+    </Link>
+  );
+}
 
 /** Valittava siru (chip), esim. koko- tai kategoriavalintaan. */
 export function Siru({ teksti, valittu, onPress }: { teksti: string; valittu: boolean; onPress: () => void }) {

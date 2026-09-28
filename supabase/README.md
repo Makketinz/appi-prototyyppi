@@ -12,6 +12,7 @@ Migraatiot ovat `migrations/`-hakemistossa numerojärjestyksessä ja ne ajetaan 
 | `migrations/0003_funktiot.sql` | Rekisteröinti luo perheen ja käyttäjän (trigger `auth.users`-tauluun); vaatteen alkutila kirjautuu historiaan; `siirra_tila(...)` ja `muokkaa_tilamuutoksen_paivamaara(...)` |
 | `migrations/0004_kengankoko.sql` | Lapselle erillinen nykyinen kengänkoko (`nykyinen_kenkakoko_id`); `nykyinen_koko_id` on vaatekoko; trigger estää väärän kokoryhmän |
 | `tests/hyvaksymistesti.sql` | Hyväksymistesti: ajetaan SQL-editorissa, peruu omat muutoksensa |
+| `esimerkkidata.sql` | Esimerkkivaatteet vaiheen 4 kokeiluun: 14 vaateriviä, merkit, säilytyspaikat ja muutama tilasiirto. Vaihda alkuun oma sähköposti. Lisää dataa vain tyhjään varastoon |
 | `tests/00_supabase_emulaatio.sql`, `tests/aja_paikallisesti.sh` | Vain paikalliseen PostgreSQL-testaukseen, ei Supabaseen |
 
 Tietoturvan periaatteet:

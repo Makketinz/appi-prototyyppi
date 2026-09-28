@@ -5,20 +5,34 @@ import { sateet, valit, varit } from "@/ui/teema";
 type Props = TextInputProps & {
   otsikko: string;
   virhe?: string | null;
+  /** Pieni selite kentän alla. */
+  lisatieto?: string | null;
 };
 
 /** Otsikoitu tekstikenttä. */
-export function Kentta({ otsikko, virhe, style, ...props }: Props) {
+export function Kentta({ otsikko, virhe, lisatieto, style, ...props }: Props) {
+  const lukittu = props.editable === false;
   return (
     <View style={tyylit.kehys}>
       <Text style={tyylit.otsikko}>{otsikko}</Text>
       <TextInput
         accessibilityLabel={otsikko}
         placeholderTextColor={varit.tekstiHimmea}
-        style={[tyylit.kentta, virhe ? tyylit.kenttaVirhe : null, style]}
+        style={[
+          tyylit.kentta,
+          props.multiline ? tyylit.monirivi : null,
+          lukittu ? tyylit.lukittu : null,
+          virhe ? tyylit.kenttaVirhe : null,
+          style,
+        ]}
         {...props}
       />
-      {virhe ? <Text style={tyylit.virhe}>{virhe}</Text> : null}
+      {virhe ? (
+        <Text style={tyylit.virhe} accessibilityRole="alert">
+          {virhe}
+        </Text>
+      ) : null}
+      {lisatieto ? <Text style={tyylit.lisatieto}>{lisatieto}</Text> : null}
     </View>
   );
 }
@@ -43,8 +57,20 @@ const tyylit = StyleSheet.create({
     color: varit.teksti,
     minHeight: 48,
   },
+  monirivi: {
+    minHeight: 96,
+    textAlignVertical: "top",
+  },
+  lukittu: {
+    backgroundColor: varit.tausta,
+    color: varit.tekstiHimmea,
+  },
   kenttaVirhe: {
     borderColor: varit.virhe,
+  },
+  lisatieto: {
+    fontSize: 13,
+    color: varit.tekstiHimmea,
   },
   virhe: {
     fontSize: 13,

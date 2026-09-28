@@ -1,23 +1,30 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { RUUDUN_MAX_LEVEYS, valit, varit } from "@/ui/teema";
 
 type Props = PropsWithChildren<{
-  otsikko: string;
+  /** Iso otsikko. Jätetään pois sivuilla, joilla otsikko on jo yläpalkissa. */
+  otsikko?: string;
   /** Vierittyvä sisältö (oletus). Lomakkeet ja listat käyttävät tätä. */
   vieritettava?: boolean;
+  /** Ruudun alareunaan kiinnitetty sisältö, esim. lomakkeen Tallenna-nappi. */
+  alaosa?: ReactNode;
 }>;
 
 /**
  * Yhteinen näkymäkehys: otsikko ylhäällä, sisältö keskitettynä mobiilileveyteen.
  */
-export function Ruutu({ otsikko, vieritettava = true, children }: Props) {
+export function Ruutu({ otsikko, vieritettava = true, alaosa, children }: Props) {
+  const insets = useSafeAreaInsets();
   const sisalto = (
     <View style={tyylit.sisalto}>
-      <Text style={tyylit.otsikko} accessibilityRole="header">
-        {otsikko}
-      </Text>
+      {otsikko ? (
+        <Text style={tyylit.otsikko} accessibilityRole="header">
+          {otsikko}
+        </Text>
+      ) : null}
       {children}
     </View>
   );
@@ -25,12 +32,17 @@ export function Ruutu({ otsikko, vieritettava = true, children }: Props) {
   return (
     <View style={tyylit.tausta}>
       {vieritettava ? (
-        <ScrollView contentContainerStyle={tyylit.vieritys} keyboardShouldPersistTaps="handled">
+        <ScrollView style={tyylit.taysi} contentContainerStyle={tyylit.vieritys} keyboardShouldPersistTaps="handled">
           {sisalto}
         </ScrollView>
       ) : (
         sisalto
       )}
+      {alaosa ? (
+        <View style={[tyylit.alaosa, { paddingBottom: valit.s + insets.bottom }]}>
+          <View style={tyylit.alaosaSisalto}>{alaosa}</View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -40,6 +52,9 @@ const tyylit = StyleSheet.create({
     flex: 1,
     backgroundColor: varit.tausta,
     alignItems: "center",
+  },
+  taysi: {
+    width: "100%",
   },
   vieritys: {
     flexGrow: 1,
@@ -58,5 +73,19 @@ const tyylit = StyleSheet.create({
     fontWeight: "700",
     color: varit.teksti,
     marginTop: valit.s,
+  },
+  alaosa: {
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: varit.pinta,
+    borderTopWidth: 1,
+    borderTopColor: varit.reuna,
+    paddingTop: valit.s,
+  },
+  alaosaSisalto: {
+    width: "100%",
+    maxWidth: RUUDUN_MAX_LEVEYS,
+    paddingHorizontal: valit.m,
+    gap: valit.s,
   },
 });
