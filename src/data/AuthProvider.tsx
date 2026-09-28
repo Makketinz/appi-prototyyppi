@@ -1,5 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
-import { createContext, type PropsWithChildren, useContext, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { createContext, type PropsWithChildren, useContext, useEffect, useRef, useState } from "react";
 
 import { supabase } from "@/data/supabase";
 
@@ -15,24 +16,35 @@ const AuthKonteksti = createContext<AuthTila>({ sessio: null, ladattu: false });
 /** Pitää Supabase-session Reactin tilassa ja kuuntelee kirjautumisen muutoksia. */
 export function AuthProvider({ children }: PropsWithChildren) {
   const [tila, asetaTila] = useState<AuthTila>({ sessio: null, ladattu: false });
+  const queryClient = useQueryClient();
+  // undefined = alkutilaa ei ole vielä luettu; null = ei kirjautunut.
+  const edellinenKayttaja = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     const asiakas = supabase();
     let aktiivinen = true;
 
-    asiakas.auth.getSession().then(({ data }) => {
-      if (aktiivinen) asetaTila({ sessio: data.session, ladattu: true });
-    });
+    function paivita(sessio: Session | null) {
+      if (!aktiivinen) return;
+      const kayttaja = sessio?.user.id ?? null;
+      // Käyttäjän vaihtuessa (myös uloskirjautuessa) välimuisti tyhjennetään, jotta
+      // seuraava käyttäjä ei näe edellisen lasta tai vaatteita edes hetkellisesti.
+      if (edellinenKayttaja.current !== undefined && edellinenKayttaja.current !== kayttaja) {
+        queryClient.clear();
+      }
+      edellinenKayttaja.current = kayttaja;
+      asetaTila({ sessio, ladattu: true });
+    }
 
-    const { data: kuuntelija } = asiakas.auth.onAuthStateChange((_tapahtuma, sessio) => {
-      if (aktiivinen) asetaTila({ sessio, ladattu: true });
-    });
+    asiakas.auth.getSession().then(({ data }) => paivita(data.session));
+
+    const { data: kuuntelija } = asiakas.auth.onAuthStateChange((_tapahtuma, sessio) => paivita(sessio));
 
     return () => {
       aktiivinen = false;
       kuuntelija.subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   return <AuthKonteksti.Provider value={tila}>{children}</AuthKonteksti.Provider>;
 }
